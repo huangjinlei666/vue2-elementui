@@ -1,5 +1,8 @@
 # my-project
-
+2022/7/1
+  初始化vue2项目
+2022/7/2
+  登录页面
 ## Project setup
 ```
 yarn install
