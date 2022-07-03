@@ -1,6 +1,15 @@
 <template>
   <div>
-    <el-form :rules="rules" :model="loginForm" class="loginContainer" ref="loginForm">
+    <el-form
+      v-loading="loading"
+      element-loading-text="拼命加载中"
+      element-loading-spinner="el-icon-loading"
+      element-loading-background="rgba(0, 0, 0, 0.8)"
+      :rules="rules"
+      :model="loginForm"
+      class="loginContainer"
+      ref="loginForm"
+    >
       <h3 class="loginTitle">系统登陆</h3>
       <el-form-item label="用户名" prop="username">
         <el-input
@@ -24,7 +33,7 @@
           placeholder="点击更换验证码"
         >
         </el-input>
-        <img :src="captchaUrl"  @click="updateCaptcha"/>
+        <img :src="captchaUrl" @click="updateCaptcha" />
       </el-form-item>
       <el-checkbox class="loginRemember" v-model="checked">记住我</el-checkbox>
       <el-button type="primary" style="width: 100%" @click="submitLogin"
@@ -44,7 +53,8 @@ export default {
         password: "123", //密码
         code: "", //验证码
       },
-      captchaUrl: "/captcha?time="+new Date(), //验证码url
+      loading: false, //是否登陆中
+      captchaUrl: "/captcha?time=" + new Date(), //验证码url
       checked: true, //记住我
       rules: {
         username: [{ required: true, message: "请输入", trigger: "blur" }],
@@ -54,15 +64,25 @@ export default {
     };
   },
   methods: {
-    updateCaptcha(){//更新验证码
-     this.captchaUrl='/captcha?time='+new Date();
+    updateCaptcha() {
+      //更新验证码
+      this.captchaUrl = "/captcha?time=" + new Date();
     },
     submitLogin() {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
-          this.$message.success('登录成功');
+          this.loading = true;
+          this.postRequest("/login", this.loginForm).then((resp) => {
+            this.loading = false;
+            if (resp) {
+              //存储token
+              const tokenStr = resp.obj.tokenHead + resp.obj.token;
+              window.sessionStorage.setItem("tokenStr", tokenStr);
+              this.$router.replace("/home");
+            }
+          });
         } else {
-          this.$message.error('请输入所有字段');
+          this.$message.error("请输入所有字段");
           return false;
         }
       });

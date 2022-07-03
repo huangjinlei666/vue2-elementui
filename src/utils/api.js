@@ -1,7 +1,24 @@
 import axios from "axios";
 import { Message } from 'element-ui'
 import router from '../router/index'
-//相应拦截器
+
+//请求拦截器
+axios.interceptors.request.use(config=>{
+    if(window.sessionStorage.getItem('tokenStr')){
+        //请求携带自定义token
+        config.headers['Authorization']=
+        window.sessionStorage.getItem('tokenStr');
+    }
+    return config
+},error=>{
+    alert(error)
+})
+
+
+
+
+
+//响应拦截器
 axios.interceptors.response.use(success => {
     //业务逻辑错误
     if (success.status && success.status == 200) {
@@ -37,6 +54,30 @@ let base='';
 export const postRequest = (url, params)=>{
     return axios({
         method:'post',
+        url:`${base}${url}`,
+        data:params
+    })
+}
+//传递json格式的put请求
+export const putRequest = (url, params)=>{
+    return axios({
+        method:'put',
+        url:`${base}${url}`,
+        data:params
+    })
+}
+//传递json格式的get请求
+export const getRequest = (url, params)=>{
+    return axios({
+        method:'get',
+        url:`${base}${url}`,
+        data:params
+    })
+}
+//传递json格式的delete请求
+export const deleteRequest = (url, params)=>{
+    return axios({
+        method:'delete',
         url:`${base}${url}`,
         data:params
     })
